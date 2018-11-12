@@ -19,7 +19,7 @@ SoftwareSerial mySerial(10, 11); // RX, TX
  #define DEBUG_PRINTLN(...)
 #endif
 
-#define VERSION F("v0.22")
+#define VERSION F("v0.23")
 
 void setup() {
   Serial.begin(9600);
@@ -63,8 +63,7 @@ void loop() {
         sHH = buf.substring(7,9);       
         sMM = buf.substring(9,11);
         sSS = buf.substring(11,13);
-        // wait for GPS startup to complete. until then, time field in sentence will be empty.
-        if (sMM.indexOf(',') == -1 && sSS.indexOf(',') == -1 && !(oldsec == 1 && newsec == 0))  newsec = sSS.toInt();
+        newsec = sSS.toInt();
       }
       DEBUG_PRINT("buf len = ");
       DEBUG_PRINTLN(buf.length());
@@ -96,7 +95,8 @@ void loop() {
 
   if (sHH.length() > 0 && oldsec != newsec) {
     lcd.setCursor(3, 1);
-    lcd.print(sHH+F(":")+sMM+F(":")+sSS+F(" UTC"));
+    // wait for GPS startup to complete. until then, time field in sentence will be empty.
+    if (sMM.indexOf(',') == -1 && sSS.indexOf(',') == -1)  lcd.print(sHH+F(":")+sMM+F(":")+sSS+F(" UTC"));
     oldsec = newsec;
   }
   // what can't be done here is: delay(1000); (to leave time for human reading the display)
